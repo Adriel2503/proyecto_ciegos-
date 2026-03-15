@@ -1,0 +1,12 @@
+# Utils modules for Math Transcriptor
+from .config import *
+
+__all__ = [
+    'CAMERA_WIDTH', 'CAMERA_HEIGHT', 'CAMERA_FPS', 'CAMERA_PREVIEW_SIZE',
+    'MODEL_VISION', 'MODEL_EDUCATIONAL',
+    'MAX_TOKENS_VISION', 'MAX_TOKENS_EDUCATIONAL',
+    'TTS_RATE', 'TTS_OUTPUT_FORMAT',
+    'WINDOW_WIDTH', 'WINDOW_HEIGHT', 'PANEL_MAX_WIDTH',
+]
+
+

@@ -1,0 +1,157 @@
+# ========================================
+# ENTORNO VIRTUAL
+# ========================================
+venv/
+venv_nuevo/
+env/
+ENV/
+.venv
+pyvenv.cfg
+
+# ========================================
+# ARCHIVOS DE CONFIGURACION SENSIBLE
+# ========================================
+.env
+.env.local
+.env.*.local
+*.env
+.env.production
+.env.development
+
+# ========================================
+# ARCHIVOS COMPILADOS PYTHON
+# ========================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+*.whl
+
+# ========================================
+# IDE / EDITOR
+# ========================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.sublime-project
+*.sublime-workspace
+.DS_Store
+.project
+.pydevproject
+.settings/
+*.code-workspace
+.eclipse
+.vscode-settings.json
+
+# ========================================
+# SISTEMA OPERATIVO
+# ========================================
+Thumbs.db
+.DS_Store
+.AppleDouble
+.LSOverride
+*.log
+*.pot
+
+# ========================================
+# CACHE Y ARCHIVOS TEMPORALES
+# ========================================
+*.cache
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.hypothesis/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+*.tmp
+*.temp
+
+# ========================================
+# ARCHIVOS DE DATOS Y PRUEBAS LOCALES
+# ========================================
+test/sitios_demo.csv
+test/sitios_demo.xlsx
+local_data/
+temp/
+tmp/
+*.wav
+*.mp3
+*.jpg
+*.jpeg
+*.png
+test_images/
+
+# ========================================
+# ARCHIVOS DE SALIDA DE LA APLICACION
+# ========================================
+outputs/
+results/
+logs/
+debug/
+*.docx
+
+# ========================================
+# BASES DE DATOS LOCALES
+# ========================================
+*.db
+*.sqlite
+*.sqlite3
+supabase/
+
+# ========================================
+# ARCHIVOS DE COMPILACION DE PYQT5
+# ========================================
+*.ui~
+ui_*.py
+
+# ========================================
+# DEPENDENCIAS Y LOCK FILES
+# ========================================
+Pipfile.lock
+poetry.lock
+requirements-lock.txt
+
+# ========================================
+# ARCHIVOS DE AUDIO GENERADOS
+# ========================================
+audio_output/
+*.wav
+*.mp3
+
+# ========================================
+# ARCHIVOS DE CONFIGURACION LOCAL
+# ========================================
+config.local.py
+settings.local.json
+
+# ========================================
+# IGNORAR COMENTARIOS: NO ELIMINAR
+# ========================================
+# IMPORTANTE: El archivo .env contiene claves API sensibles
+# Nunca commitear .env directamente
+# Usar .env.example con valores dummy para documentacion
