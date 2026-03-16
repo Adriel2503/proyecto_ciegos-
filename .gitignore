@@ -47,8 +47,9 @@ MANIFEST
 *.whl
 
 # ========================================
-# IDE / EDITOR
+# IDE / EDITOR / HERRAMIENTAS
 # ========================================
+.claude/
 .vscode/
 .idea/
 *.swp
