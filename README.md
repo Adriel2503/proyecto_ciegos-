@@ -6,6 +6,18 @@
 
 Aplicacion desktop que describe figuras geometricas de forma tactil y sensorial para personas ciegas, usando IA en cascada y sintesis de voz.
 
+## Contenido
+
+- [Arquitectura en Cascada](#arquitectura-en-cascada) - Como funciona la IA: analisis tactil + explicacion sensorial en dos pasos
+- [Estructura del Proyecto](#estructura-del-proyecto) - Archivos, carpetas y que hace cada modulo
+- [Interfaz Grafica](#interfaz-grafica) - Layout de la ventana, paneles y flujo de uso
+- [Instalacion y Ejecucion](#instalacion-y-ejecucion) - Como instalar con uv (recomendado) o pip, paso a paso
+- [Configuracion](#configuracion) - Variables de entorno y constantes ajustables
+- [Tecnologias](#tecnologias) - Paquetes usados con versiones exactas
+- [Licencia](#licencia)
+
+---
+
 ## Arquitectura en Cascada
 
 El sistema usa dos llamadas secuenciales al mismo modelo con prompts especializados:
@@ -234,8 +246,8 @@ source venv/Scripts/activate   # Windows (Git Bash)
 # o en PowerShell:
 # .\venv\Scripts\Activate.ps1
 
-# 4. Instalar dependencias
-pip install -r requirements.txt
+# 4. Instalar dependencias desde pyproject.toml
+pip install .
 
 # 5. Configurar API key
 cp .env.example .env
