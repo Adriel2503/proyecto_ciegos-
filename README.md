@@ -125,35 +125,130 @@ La ventana de 1400x800 tiene dos paneles:
 6. Los botones de audio se habilitan: Reproducir, Guardar (abre dialogo `QFileDialog`), Copiar texto
 7. "Limpiar" borra el texto y elimina el WAV temporal. `closeEvent` limpia camara y audio al cerrar
 
-## Instalacion
+## Instalacion y Ejecucion
 
-### Requisitos
-- Python 3.12+
+### Requisitos previos
+- Python 3.12+ instalado ([descargar](https://www.python.org/downloads/))
 - Camara web (USB o integrada)
 - Conexion a internet
-- API Key de OpenAI
+- API Key de OpenAI ([obtener aca](https://platform.openai.com/api-keys))
 
-### Pasos
+---
+
+### Opcion A: Con uv (recomendado)
+
+[uv](https://docs.astral.sh/uv/) es un gestor de paquetes rapido para Python. Reemplaza pip, venv y pip-tools. Crea el entorno virtual automaticamente, no necesitas activarlo.
+
+#### 1. Instalar uv (una sola vez en tu sistema)
+
+**Windows (PowerShell):**
+```powershell
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+```
+
+**Windows (pip):**
+```bash
+pip install uv
+```
+
+**Linux / macOS:**
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+Verificar que se instalo:
+```bash
+uv --version
+```
+
+#### 2. Clonar el proyecto
 
 ```bash
-# 1. Clonar e instalar
 git clone <url-del-repositorio>
 cd Proyecto_Ciegos
+```
+
+#### 3. Configurar la API key de OpenAI
+
+```bash
+cp .env.example .env
+```
+
+Abrir `.env` con cualquier editor y reemplazar la linea:
+```
+OPENAI_API_KEY=sk-proj-tu_clave_aqui
+```
+por tu clave real. El resto de variables son opcionales (tienen valores por defecto).
+
+#### 4. Instalar dependencias
+
+```bash
+uv sync --python 3.12
+```
+
+Esto hace tres cosas automaticamente:
+- Crea la carpeta `.venv/` con Python 3.12
+- Lee `uv.lock` e instala las versiones exactas de todos los paquetes
+- Deja el entorno listo para usar
+
+#### 5. Ejecutar la aplicacion
+
+```bash
+uv run python math_transcriptor_desktop.py
+```
+
+#### Ejecuciones siguientes
+
+Solo necesitas este comando, nada mas:
+
+```bash
+cd Proyecto_Ciegos
+uv run python math_transcriptor_desktop.py
+```
+
+`uv run` detecta que `.venv` ya existe y ejecuta directo sin reinstalar.
+
+#### Comandos utiles de uv
+
+```bash
+uv sync              # Reinstalar si cambio pyproject.toml
+uv add <paquete>     # Agregar una dependencia nueva
+uv remove <paquete>  # Eliminar una dependencia
+uv python list       # Ver versiones de Python disponibles
+```
+
+---
+
+### Opcion B: Con pip (sin uv)
+
+```bash
+# 1. Clonar
+git clone <url-del-repositorio>
+cd Proyecto_Ciegos
+
+# 2. Crear entorno virtual
+python -m venv venv
+
+# 3. Activar entorno virtual
+source venv/Scripts/activate   # Windows (Git Bash)
+# o en PowerShell:
+# .\venv\Scripts\Activate.ps1
+
+# 4. Instalar dependencias
 pip install -r requirements.txt
 
-# 2. Configurar API key
+# 5. Configurar API key
 cp .env.example .env
-# Editar .env y agregar tu OPENAI_API_KEY
+# Editar .env con tu OPENAI_API_KEY
 
-# 3. Ejecutar
+# 6. Ejecutar
 python math_transcriptor_desktop.py
 ```
 
-### Con uv (alternativa)
-
+Con pip, cada vez que abras una terminal nueva tenes que activar el entorno antes de ejecutar:
 ```bash
-uv sync
-uv run python math_transcriptor_desktop.py
+source venv/Scripts/activate
+python math_transcriptor_desktop.py
 ```
 
 ## Configuracion
