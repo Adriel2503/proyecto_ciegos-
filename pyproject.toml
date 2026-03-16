@@ -1,0 +1,29 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "geomai"
+version = "1.0.0"
+requires-python = ">=3.12"
+dependencies = [
+    # --- IA ---
+    "openai==2.28.0",               # API OpenAI (GPT-4.1-mini vision + educativo)
+
+    # --- Interfaz grafica ---
+    "PyQt5==5.15.11",               # UI desktop (ventana principal, controles, dialogs)
+
+    # --- Vision y camara ---
+    "opencv-python==4.13.0.92",     # Captura de webcam y procesamiento de frames
+    "Pillow==12.1.1",               # Conversion de imagenes (PIL <-> base64 para OpenAI)
+    "numpy==2.4.3",                 # Arrays para frames OpenCV
+
+    # --- Audio ---
+    "pyttsx3==2.99",                # Text-to-Speech en espanol (genera WAV)
+
+    # --- Configuracion ---
+    "python-dotenv=1.2.2",         # Carga de .env (OPENAI_API_KEY, modelos, tokens)
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["core", "utils"]
