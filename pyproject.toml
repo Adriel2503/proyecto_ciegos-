@@ -12,6 +12,7 @@ dependencies = [
 
     # --- Interfaz grafica ---
     "PyQt5==5.15.11",               # UI desktop (ventana principal, controles, dialogs)
+    "PyQt5-Qt5==5.15.2",            # Binarios Qt5 (5.15.18 no tiene wheel Windows)
 
     # --- Vision y camara ---
     "opencv-python==4.13.0.92",     # Captura de webcam y procesamiento de frames
@@ -22,7 +23,7 @@ dependencies = [
     "pyttsx3==2.99",                # Text-to-Speech en espanol (genera WAV)
 
     # --- Configuracion ---
-    "python-dotenv=1.2.2",         # Carga de .env (OPENAI_API_KEY, modelos, tokens)
+    "python-dotenv==1.2.2",         # Carga de .env (OPENAI_API_KEY, modelos, tokens)
 ]
 
 [tool.hatch.build.targets.wheel]

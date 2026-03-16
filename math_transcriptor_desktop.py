@@ -14,7 +14,7 @@ from PyQt5.QtWidgets import (QApplication, QMainWindow, QVBoxLayout, QHBoxLayout
 from core.camera_manager import CameraManager
 from core.openai_analyzer import OpenAIAnalyzer
 from core.audio_manager import AudioManager
-from utils.config import WINDOW_WIDTH, WINDOW_HEIGHT, PANEL_MAX_WIDTH, CAMERA_FPS
+from utils.config import WINDOW_WIDTH, WINDOW_HEIGHT, PANEL_MAX_WIDTH, CAMERA_FPS, LOG_LEVEL
 from utils.styles import MAIN_STYLESHEET
 
 load_dotenv()
@@ -360,7 +360,7 @@ class MathTranscriptorApp(QMainWindow):
 
 def main():
     logging.basicConfig(
-        level=logging.DEBUG,
+        level=getattr(logging, LOG_LEVEL, logging.INFO),
         format="%(asctime)s [%(levelname)s] %(name)s: %(message)s"
     )
 

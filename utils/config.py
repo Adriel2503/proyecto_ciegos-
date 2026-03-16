@@ -1,6 +1,9 @@
 # Configuracion centralizada para Math Transcriptor Desktop
 import os
 
+# Logging - niveles: DEBUG, INFO, WARNING, ERROR, CRITICAL
+LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
+
 # Camara
 CAMERA_WIDTH = 640
 CAMERA_HEIGHT = 480
