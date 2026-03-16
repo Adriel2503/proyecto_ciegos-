@@ -6,6 +6,8 @@
 
 Aplicacion desktop que describe figuras geometricas de forma tactil y sensorial para personas ciegas, usando IA en cascada y sintesis de voz.
 
+Proyecto del grupo de investigacion de la Facultad de Ingenieria Electrica y Electronica (FIEE), liderado por el profesor Carlos Medina.
+
 ## Contenido
 
 - [Arquitectura en Cascada](#arquitectura-en-cascada) - Como funciona la IA: analisis tactil + explicacion sensorial en dos pasos
