@@ -22,7 +22,8 @@ dependencies = [
     # --- Audio ---
     "pyttsx3==2.99",                # Text-to-Speech en espanol (genera WAV)
 
-    # --- Configuracion ---
+    # --- Templates y configuracion ---
+    "Jinja2>=3.1",                  # Templates para prompts de IA (core/prompts/*.j2)
     "python-dotenv==1.2.2",         # Carga de .env (OPENAI_API_KEY, modelos, tokens)
 ]
 

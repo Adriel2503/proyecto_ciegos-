@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GeomAI - Diagrama de flujo</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    :root {
+      --page-bg:    #f1f5f9;
+      --board-bg:   #ffffff;
+      --border:     #e2e8f0;
+      --text:       #0f172a;
+      --muted:      #64748b;
+      --blue:       #3b82f6;
+      --blue-bg:    #eff6ff;
+      --blue-bdr:   #bfdbfe;
+      --green:      #10b981;
+      --green-bg:   #f0fdf4;
+      --green-bdr:  #a7f3d0;
+      --purple:     #8b5cf6;
+      --purple-bg:  #f5f3ff;
+      --purple-bdr: #ddd6fe;
+      --amber:      #f59e0b;
+      --amber-bg:   #fffbeb;
+      --amber-bdr:  #fde68a;
+      --shadow-sm:  0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.04);
+      --shadow-md:  0 4px 16px rgba(0,0,0,.08);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      background: var(--page-bg);
+      color: var(--text);
+      font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ──────────────────────────────────── */
+    .page-header {
+      background: linear-gradient(135deg, #1e3a5f 0%, #1d4ed8 100%);
+      color: #fff;
+      padding: 28px 24px 26px;
+    }
+
+    .page-header h1 {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -.3px;
+    }
+
+    .page-header p {
+      margin-top: 6px;
+      font-size: 13.5px;
+      opacity: .82;
+      max-width: 680px;
+      line-height: 1.55;
+    }
+
+    /* ── LAYOUT ──────────────────────────────────── */
+    .page {
+      max-width: 1060px;
+      margin: 0 auto;
+      padding: 28px 16px 40px;
+    }
+
+    .board {
+      position: relative;
+      background: var(--board-bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 36px 20px 40px;
+      box-shadow: var(--shadow-md);
+    }
+
+    .wires {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      overflow: visible;
+    }
+
+    /* ── STAGE ───────────────────────────────────── */
+    .stage {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .gap    { height: 38px; flex-shrink: 0; }
+    .gap-lg { height: 48px; flex-shrink: 0; }
+
+    /* ── BASE NODE ───────────────────────────────── */
+    .node {
+      position: relative;
+      width: min(100%, 280px);
+      padding: 13px 16px 13px 18px;
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      background: #fff;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      gap: 13px;
+      align-items: flex-start;
+    }
+
+    .node::before {
+      content: "";
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 5px;
+      border-radius: 14px 0 0 14px;
+      background: var(--accent, #94a3b8);
+    }
+
+    .node strong {
+      display: block;
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 1.25;
+      margin-bottom: 3px;
+    }
+
+    .node p {
+      font-size: 12.5px;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    /* ── COLOR THEMES ────────────────────────────── */
+    .sys  { --accent: var(--blue);   background: var(--blue-bg);   border-color: var(--blue-bdr); }
+    .ui   { --accent: var(--green);  background: var(--green-bg);  border-color: var(--green-bdr); }
+    .aud  { --accent: var(--amber);  background: var(--amber-bg);  border-color: var(--amber-bdr); }
+    /* ── CASCADE PANEL ───────────────────────────── */
+    .cascade-panel {
+      width: min(100%, 700px);
+      border: 2px dashed #c4b5fd;
+      border-radius: 18px;
+      padding: 18px 18px 20px;
+      background: #faf8ff;
+    }
+
+    .cascade-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+      justify-content: center;
+    }
+
+    .cascade-badge {
+      font-size: 10.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .7px;
+      color: #7c3aed;
+      background: #ede9fe;
+      border-radius: 20px;
+      padding: 3px 10px;
+    }
+
+    .cascade-flow {
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+      gap: 0;
+    }
+
+    .cascade-step {
+      flex: 1;
+      max-width: 185px;
+      position: relative;
+      background: #fff;
+      border: 1.5px solid #ddd6fe;
+      border-radius: 12px;
+      padding: 12px 12px 12px 16px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .cascade-step::before {
+      content: "";
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 4px;
+      border-radius: 12px 0 0 12px;
+      background: var(--purple);
+    }
+
+    .cascade-step-num {
+      font-size: 10px;
+      font-weight: 700;
+      color: #8b5cf6;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      margin-bottom: 4px;
+    }
+
+    .cascade-step strong {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      color: #4c1d95;
+      line-height: 1.25;
+      margin-bottom: 4px;
+    }
+
+    .cascade-step p {
+      font-size: 11.5px;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .cascade-arrow {
+      display: flex;
+      align-items: center;
+      padding: 0 8px;
+      color: #a78bfa;
+      font-size: 22px;
+      flex-shrink: 0;
+      user-select: none;
+    }
+
+    /* ── LEGEND ──────────────────────────────────── */
+    .legend {
+      margin-top: 22px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 18px;
+      justify-content: center;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .legend-dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+
+    /* ── SVG LABELS ──────────────────────────────── */
+    .svg-label {
+      fill: #374151;
+      font-size: 11px;
+      font-weight: 700;
+      font-family: "Segoe UI", system-ui, sans-serif;
+    }
+
+    /* ── EXPORT BAR ─────────────────────────────── */
+    .export-bar {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 14px;
+    }
+
+    .btn-export {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 8px 18px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #fff;
+      background: linear-gradient(135deg, #1e3a5f, #1d4ed8);
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(29,78,216,.30);
+      transition: opacity .15s;
+    }
+
+    .btn-export:hover  { opacity: .88; }
+    .btn-export:active { opacity: .75; }
+    .btn-export:disabled { opacity: .55; cursor: default; }
+
+    /* ── FOOTER ──────────────────────────────────── */
+    .footer {
+      margin-top: 16px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    /* ── GUÍA DE USO ─────────────────────────────── */
+    .guide {
+      margin-top: 36px;
+    }
+
+    .guide-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .guide-subtitle {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+
+    .guide-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .guide-step {
+      display: grid;
+      grid-template-columns: 36px 1fr auto;
+      gap: 0 16px;
+      align-items: start;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .guide-num {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #1e3a5f, #1d4ed8);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .guide-step-body { min-width: 0; }
+
+    .guide-step-body strong {
+      display: block;
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 4px;
+      color: var(--text);
+    }
+
+    .guide-step-body p {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.5;
+      margin: 0;
+    }
+
+    .guide-step-body .tag {
+      display: inline-block;
+      margin-top: 7px;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+
+    .tag-ui     { background: var(--green-bg); color: #065f46; border: 1px solid var(--green-bdr); }
+    .tag-ai     { background: var(--purple-bg); color: #4c1d95; border: 1px solid var(--purple-bdr); }
+    .tag-audio  { background: var(--amber-bg); color: #92400e; border: 1px solid var(--amber-bdr); }
+
+    .guide-img-slot {
+      width: 180px;
+      flex-shrink: 0;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1.5px dashed #cbd5e1;
+      background: #f8fafc;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      min-height: 110px;
+      color: var(--muted);
+      font-size: 11.5px;
+      text-align: center;
+      padding: 10px;
+    }
+
+    .guide-img-slot img {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 8px;
+    }
+
+    .guide-img-slot.has-img {
+      border-style: solid;
+      border-color: var(--border);
+      background: #fff;
+      padding: 0;
+    }
+
+    .slot-icon {
+      font-size: 22px;
+      opacity: .4;
+    }
+
+    /* ── RESPONSIVE ──────────────────────────────── */
+    @media (max-width: 700px) {
+      .cascade-flow  { flex-direction: column; align-items: stretch; }
+      .cascade-step  { max-width: 100%; }
+      .cascade-arrow { transform: rotate(90deg); align-self: center; }
+      .guide-step    { grid-template-columns: 36px 1fr; }
+      .guide-img-slot { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="page-header">
+    <h1>GeomAI — Diagrama de flujo</h1>
+    <p>Flujo resumido del programa. La parte de IA se muestra como una arquitectura en cascada dentro del bloque central.</p>
+  </header>
+
+  <div class="page">
+    <div class="export-bar">
+      <button class="btn-export" id="btnExport">Exportar PNG</button>
+    </div>
+    <main class="board" id="board">
+      <svg class="wires" id="wires" aria-hidden="true">
+        <defs>
+          <marker id="arrow" markerWidth="8" markerHeight="8"
+                  refX="7" refY="4" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L8,4 L0,8 z" fill="#94a3b8"/>
+          </marker>
+        </defs>
+      </svg>
+
+      <div class="stage">
+
+        <!-- 1. Inicio -->
+        <section class="node sys" id="start">
+          <div>
+            <strong>Inicio</strong>
+            <p>Se abre la aplicación y se carga la configuración.</p>
+          </div>
+        </section>
+
+        <div class="gap"></div>
+
+        <!-- 2. Cámara -->
+        <section class="node ui" id="camera">
+          <div>
+            <strong>Iniciar cámara</strong>
+            <p>Se muestra la vista previa en tiempo real.</p>
+          </div>
+        </section>
+
+        <div class="gap"></div>
+
+        <!-- 6. Captura -->
+        <section class="node ui" id="capture">
+          <div>
+            <strong>Capturar imagen</strong>
+            <p>El usuario toma el frame actual.</p>
+          </div>
+        </section>
+
+        <div class="gap"></div>
+
+        <!-- 7. Cascade (IA) -->
+        <div class="cascade-panel" id="cascade">
+          <div class="cascade-header">
+            <span class="cascade-badge">Pipeline de IA — Arquitectura en cascada</span>
+          </div>
+          <div class="cascade-flow">
+            <div class="cascade-step">
+              <div class="cascade-step-num">Paso 1</div>
+              <strong>Imagen a base64</strong>
+              <p>Se prepara la imagen para el modelo de visión.</p>
+            </div>
+            <div class="cascade-arrow">→</div>
+            <div class="cascade-step">
+              <div class="cascade-step-num">Paso 2</div>
+              <strong>Análisis táctil</strong>
+              <p>El modelo devuelve un análisis técnico de la figura.</p>
+            </div>
+            <div class="cascade-arrow">→</div>
+            <div class="cascade-step">
+              <div class="cascade-step-num">Paso 3</div>
+              <strong>Explicación educativa</strong>
+              <p>Se transforma el análisis en un texto sensorial y simple.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="gap"></div>
+
+        <!-- 8. Output -->
+        <section class="node aud" id="output">
+          <div>
+            <strong>Texto y audio</strong>
+            <p>Se muestra el resultado y se genera el archivo WAV.</p>
+          </div>
+        </section>
+
+        <div class="gap"></div>
+
+        <!-- 9. Play / Save -->
+        <section class="node aud" id="end">
+          <div>
+            <strong>Reproducir o guardar</strong>
+            <p>El usuario escucha, guarda o limpia la salida.</p>
+          </div>
+        </section>
+
+        <div class="gap"></div>
+
+        <!-- 10. Fin -->
+        <section class="node sys" id="cleanup">
+          <div>
+            <strong>Fin</strong>
+            <p>Se liberan recursos y se cierra la aplicación.</p>
+          </div>
+        </section>
+
+      </div><!-- .stage -->
+    </main>
+
+    <!-- Leyenda -->
+    <div class="legend">
+      <div class="legend-item">
+        <div class="legend-dot" style="background:#3b82f6"></div>
+        Sistema / Inicio
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:#10b981"></div>
+        Interfaz / Cámara
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:#8b5cf6"></div>
+        IA / Análisis
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:#f59e0b"></div>
+        Audio / Salida
+      </div>
+    </div>
+
+    <!-- Guía de uso -->
+    <section class="guide">
+      <h2 class="guide-title">Cómo usar GeomAI</h2>
+      <p class="guide-subtitle">Guía paso a paso para cualquier usuario. Combina el flujo de la interfaz con el pipeline de IA.</p>
+
+      <div class="guide-steps">
+
+        <div class="guide-step">
+          <div class="guide-num">1</div>
+          <div class="guide-step-body">
+            <strong>Abrir la aplicación</strong>
+            <p>Ejecuta GeomAI. La ventana principal se carga con el panel de cámara a la izquierda y el área de resultados a la derecha.</p>
+            <span class="tag tag-ui">Interfaz</span>
+          </div>
+          <div class="guide-img-slot">
+            <div class="slot-icon">🖥</div>
+            <span>Captura de pantalla<br>ventana inicial</span>
+          </div>
+        </div>
+
+        <div class="guide-step">
+          <div class="guide-num">2</div>
+          <div class="guide-step-body">
+            <strong>Seleccionar la cámara</strong>
+            <p>En el menú desplegable elige la cámara disponible (FRONT, USB, etc.). La vista previa en vivo aparece de inmediato.</p>
+            <span class="tag tag-ui">Interfaz</span>
+          </div>
+          <div class="guide-img-slot">
+            <div class="slot-icon">📷</div>
+            <span>Captura de pantalla<br>selector de cámara</span>
+          </div>
+        </div>
+
+        <div class="guide-step">
+          <div class="guide-num">3</div>
+          <div class="guide-step-body">
+            <strong>Apuntar y capturar la figura</strong>
+            <p>Coloca la figura geométrica frente a la cámara y presiona el botón <em>Capturar</em>. Se toma el frame actual como imagen de análisis.</p>
+            <span class="tag tag-ui">Interfaz</span>
+          </div>
+          <div class="guide-img-slot">
+            <div class="slot-icon">🖼</div>
+            <span>Captura de pantalla<br>botón capturar</span>
+          </div>
+        </div>
+
+        <div class="guide-step">
+          <div class="guide-num">4</div>
+          <div class="guide-step-body">
+            <strong>IA · Análisis táctil de la figura</strong>
+            <p>La imagen se convierte a base64 y se envía al modelo de visión. Devuelve un análisis técnico: textura, puntos, líneas, intersecciones y sensación táctil.</p>
+            <span class="tag tag-ai">Pipeline IA — Paso 1</span>
+          </div>
+          <div class="guide-img-slot">
+            <div class="slot-icon">⚙</div>
+            <span>Captura de pantalla<br>procesando…</span>
+          </div>
+        </div>
+
+        <div class="guide-step">
+          <div class="guide-num">5</div>
+          <div class="guide-step-body">
+            <strong>IA · Explicación educativa sensorial</strong>
+            <p>El análisis técnico se transforma en tres párrafos simples: qué se toca, cómo está organizado y para qué sirve la figura. Pensado para personas sin visión.</p>
+            <span class="tag tag-ai">Pipeline IA — Paso 2</span>
+          </div>
+          <div class="guide-img-slot">
+            <div class="slot-icon">⚙</div>
+            <span>Captura de pantalla<br>resultado de texto</span>
+          </div>
+        </div>
+
+        <div class="guide-step">
+          <div class="guide-num">6</div>
+          <div class="guide-step-body">
+            <strong>Leer el resultado en pantalla</strong>
+            <p>La explicación educativa aparece en el panel derecho. Se genera automáticamente un archivo de audio WAV con la misma descripción en español.</p>
+            <span class="tag tag-ui">Interfaz</span>
+          </div>
+          <div class="guide-img-slot">
+            <div class="slot-icon">📝</div>
+            <span>Captura de pantalla<br>texto en panel</span>
+          </div>
+        </div>
+
+        <div class="guide-step">
+          <div class="guide-num">7</div>
+          <div class="guide-step-body">
+            <strong>Escuchar, guardar o copiar</strong>
+            <p>Presiona <em>Reproducir</em> para escuchar el audio, <em>Guardar</em> para exportar el WAV a tu equipo, o <em>Copiar</em> para llevarte el texto al portapapeles.</p>
+            <span class="tag tag-audio">Audio / Salida</span>
+          </div>
+          <div class="guide-img-slot">
+            <div class="slot-icon">🔊</div>
+            <span>Captura de pantalla<br>botones de audio</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <p class="footer">Archivo local · Abrir con doble clic o con el navegador</p>
+  </div>
+
+  <script>
+    const board = document.getElementById("board");
+    const svg   = document.getElementById("wires");
+
+    // Conexiones del flujo principal (la cascada interna usa flechas CSS)
+    const connections = [
+      { from: "start",   to: "camera" },
+      { from: "camera",  to: "capture" },
+      { from: "capture", to: "cascade" },
+      { from: "cascade", to: "output" },
+      { from: "output",  to: "end" },
+      { from: "end",     to: "cleanup" },
+    ];
+
+    function rect(el) {
+      const r = el.getBoundingClientRect();
+      const b = board.getBoundingClientRect();
+      return {
+        cx:     r.left - b.left + r.width  / 2,
+        top:    r.top  - b.top,
+        bottom: r.bottom - b.top,
+      };
+    }
+
+    function draw() {
+      const br = board.getBoundingClientRect();
+      const w  = Math.ceil(br.width);
+      const h  = Math.ceil(board.scrollHeight);
+
+      svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
+      svg.setAttribute("width",  w);
+      svg.setAttribute("height", h);
+
+      const defs = svg.querySelector("defs");
+      svg.innerHTML = "";
+      svg.appendChild(defs);
+
+      connections.forEach(({ from, to, label }) => {
+        const a = document.getElementById(from);
+        const b = document.getElementById(to);
+        if (!a || !b) return;
+
+        const ra = rect(a);
+        const rb = rect(b);
+
+        const sx = ra.cx;
+        const sy = ra.bottom;
+        const ex = rb.cx;
+        const ey = rb.top;
+        const bend = Math.max(20, Math.min(65, (ey - sy) * 0.42));
+
+        const line = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        line.setAttribute("d", `M ${sx} ${sy} C ${sx} ${sy+bend}, ${ex} ${ey-bend}, ${ex} ${ey}`);
+        line.setAttribute("fill", "none");
+        line.setAttribute("stroke", "#94a3b8");
+        line.setAttribute("stroke-width", "2");
+        line.setAttribute("marker-end", "url(#arrow)");
+        line.setAttribute("stroke-linecap", "round");
+        svg.appendChild(line);
+
+        if (label) {
+          const mx = (sx + ex) / 2;
+          const my = (sy + ey) / 2 - 6;
+          const tw = label.length * 7 + 14;
+
+          const bg = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+          bg.setAttribute("x", mx - tw / 2);
+          bg.setAttribute("y", my - 12);
+          bg.setAttribute("width", tw);
+          bg.setAttribute("height", 18);
+          bg.setAttribute("rx", 5);
+          bg.setAttribute("fill", "#f8fafc");
+          bg.setAttribute("stroke", "#cbd5e1");
+          bg.setAttribute("stroke-width", "1");
+          svg.appendChild(bg);
+
+          const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+          text.setAttribute("class", "svg-label");
+          text.setAttribute("x", mx.toFixed(1));
+          text.setAttribute("y", my.toFixed(1));
+          text.setAttribute("text-anchor", "middle");
+          text.textContent = label;
+          svg.appendChild(text);
+        }
+      });
+    }
+
+    document.getElementById("btnExport").addEventListener("click", async function () {
+      const btn = this;
+      btn.disabled = true;
+      btn.textContent = "Exportando...";
+      try {
+        const canvas = await html2canvas(board, {
+          scale: 2,
+          backgroundColor: "#ffffff",
+          useCORS: true,
+        });
+        const link = document.createElement("a");
+        link.download = "diagrama_flujo_geomai.png";
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Exportar PNG";
+      }
+    });
+
+    let raf = null;
+    const schedule = () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(draw); };
+
+    window.addEventListener("resize", schedule);
+    if ("ResizeObserver" in window) new ResizeObserver(schedule).observe(board);
+    window.addEventListener("load", () => setTimeout(draw, 80));
+  </script>
+</body>
+</html>
